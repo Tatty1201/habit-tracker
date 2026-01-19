@@ -1,4 +1,5 @@
 // Badge definitions and evaluation logic
+import { formatDate } from "./habit-store"
 
 export interface Badge {
   id: string
@@ -178,7 +179,7 @@ export function evaluateBadges(context: EvaluationContext): string[] {
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const todayStr = today.toISOString().split("T")[0]
+  const todayStr = formatDate(today)
   const activeHabits = habits.filter((h) => h.isActive)
   const totalChecks = checkins.filter((c) => c.done).length
 
@@ -300,7 +301,7 @@ function calculatePerfectDayStreak(
   let checkDate = new Date(today)
 
   while (true) {
-    const dateStr = checkDate.toISOString().split("T")[0]
+    const dateStr = formatDate(checkDate)
     const dayChecks = checkins.filter((c) => c.date === dateStr && c.done)
     const completedHabits = activeHabits.filter((h) => dayChecks.some((c) => c.habitId === h.id))
 
@@ -309,7 +310,7 @@ function calculatePerfectDayStreak(
       checkDate.setDate(checkDate.getDate() - 1)
     } else {
       // 今日完了してない場合は昨日から計算
-      if (streak === 0 && dateStr === today.toISOString().split("T")[0]) {
+      if (streak === 0 && dateStr === formatDate(today)) {
         checkDate.setDate(checkDate.getDate() - 1)
         continue
       }
@@ -328,14 +329,14 @@ function calculateDailyStreak(checkins: Array<{ date: string; done: boolean }>):
   let checkDate = new Date(today)
 
   while (true) {
-    const dateStr = checkDate.toISOString().split("T")[0]
+    const dateStr = formatDate(checkDate)
     const hasCheckin = checkins.some((c) => c.date === dateStr && c.done)
 
     if (hasCheckin) {
       streak++
       checkDate.setDate(checkDate.getDate() - 1)
     } else {
-      if (streak === 0 && dateStr === today.toISOString().split("T")[0]) {
+      if (streak === 0 && dateStr === formatDate(today)) {
         checkDate.setDate(checkDate.getDate() - 1)
         continue
       }
