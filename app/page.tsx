@@ -29,6 +29,7 @@ interface StoredState {
   weekStartDate: string
   unlockedBadgeIds: string[]
   equippedTitleBadgeId: string | null
+  skinId: string
 }
 
 // localStorage から読み込む
@@ -50,6 +51,7 @@ function saveToStorage(
   weekStartDate: Date,
   unlockedBadgeIds: string[],
   equippedTitleBadgeId: string | null,
+  skinId: string,
 ) {
   try {
     const data: StoredState = {
@@ -61,6 +63,7 @@ function saveToStorage(
       weekStartDate: weekStartDate.toISOString(),
       unlockedBadgeIds,
       equippedTitleBadgeId,
+      skinId,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
   } catch (error) {
@@ -79,6 +82,7 @@ export default function HabitTracker() {
   const [isInitialized, setIsInitialized] = useState(false)
   const [unlockedBadgeIds, setUnlockedBadgeIds] = useState<string[]>([])
   const [equippedTitleBadgeId, setEquippedTitleBadgeId] = useState<string | null>(null)
+  const [skinId, setSkinId] = useState<string>("lime")
 
   const xp = calculateXP(checkins)
   const level = calculateLevel(xp)
@@ -118,15 +122,23 @@ export default function HabitTracker() {
       if (stored.equippedTitleBadgeId !== undefined) {
         setEquippedTitleBadgeId(stored.equippedTitleBadgeId)
       }
+      if (stored.skinId) {
+        setSkinId(stored.skinId)
+      }
     }
     setIsInitialized(true)
   }, [])
 
+  // スキンをHTMLに適用
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", skinId)
+  }, [skinId])
+
   // state が変更されたら localStorage に保存
   useEffect(() => {
     if (!isInitialized) return
-    saveToStorage(habits, checkins, weekStartDate, unlockedBadgeIds, equippedTitleBadgeId)
-  }, [habits, checkins, weekStartDate, unlockedBadgeIds, equippedTitleBadgeId, isInitialized])
+    saveToStorage(habits, checkins, weekStartDate, unlockedBadgeIds, equippedTitleBadgeId, skinId)
+  }, [habits, checkins, weekStartDate, unlockedBadgeIds, equippedTitleBadgeId, skinId, isInitialized])
 
   useEffect(() => {
     if (level > prevLevelRef.current) {
@@ -286,6 +298,8 @@ export default function HabitTracker() {
           unlockedBadgeIds={unlockedBadgeIds}
           equippedTitleBadgeId={equippedTitleBadgeId}
           onEquipTitle={setEquippedTitleBadgeId}
+          skinId={skinId}
+          onSkinChange={setSkinId}
         />
       )}
 

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { XPBar } from "@/components/xp-bar"
 import { BADGES, getBadgeById } from "@/lib/badges"
+import { THEMES } from "@/lib/themes"
 import { cn } from "@/lib/utils"
 
 interface ProfileScreenProps {
@@ -14,6 +15,8 @@ interface ProfileScreenProps {
   unlockedBadgeIds: string[]
   equippedTitleBadgeId: string | null
   onEquipTitle: (badgeId: string | null) => void
+  skinId: string
+  onSkinChange: (skinId: string) => void
 }
 
 export function ProfileScreen({
@@ -23,8 +26,9 @@ export function ProfileScreen({
   unlockedBadgeIds,
   equippedTitleBadgeId,
   onEquipTitle,
+  skinId,
+  onSkinChange,
 }: ProfileScreenProps) {
-
   return (
     <div className="min-h-screen pb-24">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -35,6 +39,38 @@ export function ProfileScreen({
 
       {/* Main content */}
       <main className="max-w-lg mx-auto px-4 py-6 space-y-4">
+        {/* Skin / Theme */}
+        <Card className="p-5 rounded-lg">
+          <div className="text-xs text-muted-foreground font-bold tracking-widest mb-3">スキン</div>
+          <div className="grid grid-cols-3 gap-3">
+            {THEMES.map((theme) => {
+              const isSelected = skinId === theme.id
+              return (
+                <motion.button
+                  key={theme.id}
+                  onClick={() => onSkinChange(theme.id)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    isSelected ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/50"
+                  )}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div
+                    className="w-full aspect-video rounded-md flex items-center justify-center"
+                    style={{ backgroundColor: theme.preview.bg }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-full"
+                      style={{ backgroundColor: theme.preview.accent }}
+                    />
+                  </div>
+                  <span className="text-xs font-bold truncate w-full text-center">{theme.name}</span>
+                </motion.button>
+              )
+            })}
+          </div>
+        </Card>
+
         {/* XP Card */}
         <Card className="p-6 rounded-lg">
           <XPBar xp={xp} level={level} size="lg" />
