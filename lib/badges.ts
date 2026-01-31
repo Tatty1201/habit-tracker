@@ -183,20 +183,21 @@ export function evaluateBadges(context: EvaluationContext): string[] {
   const activeHabits = habits.filter((h) => h.isActive)
   const totalChecks = checkins.filter((c) => c.done).length
 
+  // 今日の達成数（曜日バッジ・triple threat 等で使用）
+  const todayChecks = checkins.filter((c) => c.date === todayStr && c.done)
+  const todayCompleteCount =
+    activeHabits.length > 0
+      ? activeHabits.filter((h) => todayChecks.some((c) => c.habitId === h.id)).length
+      : 0
+
   // first_checkin: 初めてチェックを付けた
   if (totalChecks >= 1) {
     unlock("first_checkin")
   }
 
   // day_complete: 今日、全習慣達成
-  if (activeHabits.length > 0) {
-    const todayChecks = checkins.filter((c) => c.date === todayStr && c.done)
-    const todayCompleteCount = activeHabits.filter((h) =>
-      todayChecks.some((c) => c.habitId === h.id)
-    ).length
-    if (todayCompleteCount === activeHabits.length) {
-      unlock("day_complete")
-    }
+  if (activeHabits.length > 0 && todayCompleteCount === activeHabits.length) {
+    unlock("day_complete")
   }
 
   // create_3_habits: 習慣が3つ以上
